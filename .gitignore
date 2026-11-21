@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build and test output
+build/
+coverage/
+
+# Compiler output (Remix artifacts and downloaded dependencies)
+artifacts/
+.deps/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs and OS files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
