@@ -22,7 +22,7 @@ A React single-page app with two MetaMask-based tools: a **Transactions** page t
 
 ## Tech stack
 
-React 18 with React Router 6 and web3.js 4, built with Create React App (react-scripts 5.0.1), react-toastify, MetaMask, Solidity 0.8, Python 3 with web3.py 7, Ethereum Sepolia.
+React 18 with React Router 6 and web3.js 4, built with Create React App (react-scripts 5.0.1), react-toastify, MetaMask, Solidity 0.8, Python 3 with web3.py 7, Ethereum Sepolia. Tests use Hardhat 2 with ethers 6, Mocha and Chai for the contracts, and Jest for the front end.
 
 ## Run it locally
 
@@ -35,7 +35,7 @@ npm start
 
 The app opens at http://localhost:3000. Browsers only expose the Web Crypto API on `https` pages and `localhost`, so open it through one of those. Sign in on the demo screen with `admin` / `password` and switch MetaMask to Sepolia. To use your own contract, deploy `src/storage.sol` from [Remix](https://remix.ethereum.org) with **Injected Provider - MetaMask** and replace `contractAddress` in `src/Storage.js`.
 
-`npm run build` writes a production build to `build/`, and `npm test` runs the Jest unit tests in `src/`. Dependency versions are pinned in `package.json` and `package-lock.json`.
+`npm run build` writes a production build to `build/`. Dependency versions are pinned in `package.json` and `package-lock.json`.
 
 **Python script.** From the repository root:
 
@@ -58,10 +58,23 @@ Check a file against an existing record without sending a transaction (no key ne
 python3 scripts/register_file.py path/to/file --rpc-url https://YOUR_SEPOLIA_RPC_URL --contract 0xb9c6361d07e60edd36718451276cd636f24473ff --verify 3
 ```
 
+## Tests
+
+```bash
+npm run test:contracts   # Hardhat tests for both contracts (test/)
+npm test                 # Jest unit tests for the front end (src/*.test.js)
+```
+
+The contract tests deploy `EtherTransfer` and `FileStorage` on Hardhat's in-process network. They check that only the owner can withdraw, that a failed transfer reverts with "Transfer failed.", that file IDs start at 1 and that `fileCount` matches the number of uploads. Hardhat compiles the contracts with the `solc` 0.8.30 package from npm (`hardhat.config.js` points it there instead of downloading a compiler), and `npm run compile` runs only that step. The Jest tests cover the file size formatting and check that the browser's SHA-256 helper returns the same hex string as Python's `hashlib`.
+
 ## Project structure
 
 ```
 package.json, package-lock.json   dependencies and npm scripts
+hardhat.config.js             Hardhat settings (contracts in src/, solc from npm)
+test/
+  EtherTransfer.test.js       contract tests for transaction.sol
+  FileStorage.test.js         contract tests for storage.sol
 public/
   index.html                  HTML page the React app mounts into
 src/

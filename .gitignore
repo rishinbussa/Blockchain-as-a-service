@@ -5,8 +5,9 @@ node_modules/
 build/
 coverage/
 
-# Compiler output (Remix artifacts and downloaded dependencies)
+# Compiler output (Remix and Hardhat artifacts, Hardhat cache, downloaded dependencies)
 artifacts/
+cache/
 .deps/
 
 # Python
