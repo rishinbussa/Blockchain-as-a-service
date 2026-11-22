@@ -67,11 +67,14 @@ npm test                 # Jest unit tests for the front end (src/*.test.js)
 
 The contract tests deploy `EtherTransfer` and `FileStorage` on Hardhat's in-process network. They check that only the owner can withdraw, that a failed transfer reverts with "Transfer failed.", that file IDs start at 1 and that `fileCount` matches the number of uploads. Hardhat compiles the contracts with the `solc` 0.8.30 package from npm (`hardhat.config.js` points it there instead of downloading a compiler), and `npm run compile` runs only that step. The Jest tests cover the file size formatting and check that the browser's SHA-256 helper returns the same hex string as Python's `hashlib`.
 
+GitHub Actions (`.github/workflows/ci.yml`) runs `npm ci`, both test suites, a syntax check of the Python script and `npm run build` on Node 22 for every push to `main` and every pull request.
+
 ## Project structure
 
 ```
 package.json, package-lock.json   dependencies and npm scripts
 hardhat.config.js             Hardhat settings (contracts in src/, solc from npm)
+.github/workflows/ci.yml      CI: contract tests, unit tests, script syntax check, build
 test/
   EtherTransfer.test.js       contract tests for transaction.sol
   FileStorage.test.js         contract tests for storage.sol
