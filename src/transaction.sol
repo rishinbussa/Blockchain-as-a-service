@@ -7,9 +7,6 @@ contract EtherTransfer {
 
     event TransferSuccessful(address indexed from, address indexed to, uint256 amount);
 
-    
-    event TransferFailed(address indexed from, address indexed to, uint256 amount);
-
     constructor() {
         owner = msg.sender;
     }
@@ -26,12 +23,10 @@ contract EtherTransfer {
 
         
         (bool success, ) = recipient.call{value: msg.value}("");
-        if (success) {
-            emit TransferSuccessful(msg.sender, recipient, msg.value);
-        } else {
-            emit TransferFailed(msg.sender, recipient, msg.value);
-            revert("Transfer failed.");
-        }
+        // A revert undoes the whole transaction, events included, so a failed
+        // transfer is reported through the revert reason rather than an event.
+        require(success, "Transfer failed.");
+        emit TransferSuccessful(msg.sender, recipient, msg.value);
     }
 
     
@@ -39,6 +34,7 @@ contract EtherTransfer {
 
     
     function withdraw() external onlyOwner {
-        payable(msg.sender).transfer(address(this).balance);
+        (bool success, ) = payable(msg.sender).call{value: address(this).balance}("");
+        require(success, "Withdraw failed.");
     }
 }
