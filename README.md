@@ -8,7 +8,7 @@ A React single-page app with two MetaMask-based tools: a **Transactions** page t
 
 | Route | Component | Behavior |
 | --- | --- | --- |
-| `/` | `Login.js` | Client-side form that accepts the hard-coded pair `admin` / `password` and navigates to `/home`. |
+| `/` | `Login.js` | Demo sign-in screen with no real authentication, and the page says so. It compares the input with the hard-coded pair `admin` / `password` in the browser and navigates to `/home`. The other routes are not guarded and open directly. |
 | `/home` | `Home.js` | Links to the two tools. |
 | `/transaction` | `Transaction.js` | Uses web3.js with `window.ethereum` to request accounts, then calls `web3.eth.sendTransaction` with the amount converted by `toWei(amount, 'ether')`. Progress comes from the `transactionHash`, `receipt` and `error` events and is shown as text and react-toastify toasts. The history list lives in component state only. |
 | `/storage` | `Storage.js` | Reads the selected file with `FileReader`, hashes the bytes with SHA-256 through the browser's Web Crypto API (`sha256Hex` in `src/fileUtils.js`, which calls `crypto.subtle.digest`) and calls `uploadFile(name, hash, size)` on `FileStorage` from the connected account with a 2,000,000 gas limit. On load and after each upload it reads `fileCount()`, then `files(i)` for IDs 1 to `fileCount` (the IDs the contract uses), and lists the three newest entries, with sizes shown in bytes, KB or MB by `formatFileSize` in `src/fileUtils.js`. |
@@ -33,7 +33,7 @@ npm install
 npm start
 ```
 
-The app opens at http://localhost:3000. Browsers only expose the Web Crypto API on `https` pages and `localhost`, so open it through one of those. Sign in with `admin` / `password` and switch MetaMask to Sepolia. To use your own contract, deploy `src/storage.sol` from [Remix](https://remix.ethereum.org) with **Injected Provider - MetaMask** and replace `contractAddress` in `src/Storage.js`.
+The app opens at http://localhost:3000. Browsers only expose the Web Crypto API on `https` pages and `localhost`, so open it through one of those. Sign in on the demo screen with `admin` / `password` and switch MetaMask to Sepolia. To use your own contract, deploy `src/storage.sol` from [Remix](https://remix.ethereum.org) with **Injected Provider - MetaMask** and replace `contractAddress` in `src/Storage.js`.
 
 `npm run build` writes a production build to `build/`, and `npm test` runs the Jest unit tests in `src/`. Dependency versions are pinned in `package.json` and `package-lock.json`.
 
@@ -82,5 +82,5 @@ scripts/
 ## Limitations and next steps
 
 - Records that the browser stored before it switched to SHA-256 hold a `0x`-prefixed keccak-256 hash, so they do not match a SHA-256 check.
-- The login is a client-side check against hard-coded credentials, and the other routes open directly without it.
+- There is no real authentication. The login screen is a labelled demo that checks hard-coded credentials in the browser, and the other routes open without it. Protecting the pages would need a server, or a wallet signature checked by one.
 - Create React App is deprecated. The app still builds with react-scripts 5.0.1 on Node 22, but Vite would be the maintained choice for a rewrite.

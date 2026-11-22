@@ -21,6 +21,10 @@ const Login = () => {
   return (
     <div className="login-container">
       <h2>Login</h2>
+      <p>
+        Demo screen with no real authentication: the browser compares what you
+        type with admin / password, and the other pages open without signing in.
+      </p>
       <form onSubmit={handleLogin} className="login-form">
         <input
           type="text"
