@@ -1,6 +1,6 @@
 # Ethereum Transfer and File Registry dApp
 
-A React single-page app with two MetaMask-based tools: a **Transactions** page that sends ETH from the connected account to any address, and a **Storage** page that records a file's name, keccak-256 hash and size on chain through a `FileStorage` contract. The browser only hashes the file; its contents are not uploaded anywhere. A separate Python script registers files in the same contract from the command line with web3.py, using SHA-256 hashes. Both clients use the same `FileStorage` address, which the script reaches through a Sepolia RPC endpoint.
+A React single-page app with two MetaMask-based tools: a **Transactions** page that sends ETH from the connected account to any address, and a **Storage** page that records a file's name, SHA-256 hash and size on chain through a `FileStorage` contract. The browser only hashes the file; its contents are not uploaded anywhere. A separate Python script registers files in the same contract from the command line with web3.py. Both clients store the hash in the same format (lowercase hex SHA-256 without `0x`), so a file registered by one can be checked by the other. They also share the `FileStorage` address, which the script reaches through a Sepolia RPC endpoint.
 
 ## How it works
 
@@ -11,7 +11,7 @@ A React single-page app with two MetaMask-based tools: a **Transactions** page t
 | `/` | `Login.js` | Client-side form that accepts the hard-coded pair `admin` / `password` and navigates to `/home`. |
 | `/home` | `Home.js` | Links to the two tools. |
 | `/transaction` | `Transaction.js` | Uses web3.js with `window.ethereum` to request accounts, then calls `web3.eth.sendTransaction` with the amount converted by `toWei(amount, 'ether')`. Progress comes from the `transactionHash`, `receipt` and `error` events and is shown as text and react-toastify toasts. The history list lives in component state only. |
-| `/storage` | `Storage.js` | Reads the selected file with `FileReader`, hashes the bytes with `web3.utils.sha3` (keccak-256) and calls `uploadFile(name, hash, size)` on `FileStorage` from the connected account with a 2,000,000 gas limit. On load and after each upload it reads `fileCount()`, then `files(i)` for IDs 1 to `fileCount` (the IDs the contract uses), and lists the three newest entries, with sizes shown in bytes, KB or MB by `formatFileSize` in `src/fileUtils.js`. |
+| `/storage` | `Storage.js` | Reads the selected file with `FileReader`, hashes the bytes with SHA-256 through the browser's Web Crypto API (`sha256Hex` in `src/fileUtils.js`, which calls `crypto.subtle.digest`) and calls `uploadFile(name, hash, size)` on `FileStorage` from the connected account with a 2,000,000 gas limit. On load and after each upload it reads `fileCount()`, then `files(i)` for IDs 1 to `fileCount` (the IDs the contract uses), and lists the three newest entries, with sizes shown in bytes, KB or MB by `formatFileSize` in `src/fileUtils.js`. |
 
 **Contracts.**
 
@@ -33,7 +33,7 @@ npm install
 npm start
 ```
 
-The app opens at http://localhost:3000. Sign in with `admin` / `password` and switch MetaMask to Sepolia. To use your own contract, deploy `src/storage.sol` from [Remix](https://remix.ethereum.org) with **Injected Provider - MetaMask** and replace `contractAddress` in `src/Storage.js`.
+The app opens at http://localhost:3000. Browsers only expose the Web Crypto API on `https` pages and `localhost`, so open it through one of those. Sign in with `admin` / `password` and switch MetaMask to Sepolia. To use your own contract, deploy `src/storage.sol` from [Remix](https://remix.ethereum.org) with **Injected Provider - MetaMask** and replace `contractAddress` in `src/Storage.js`.
 
 `npm run build` writes a production build to `build/`, and `npm test` runs the Jest unit tests in `src/`. Dependency versions are pinned in `package.json` and `package-lock.json`.
 
@@ -62,7 +62,7 @@ src/
   Login.js, Home.js           login form and navigation page
   Transaction.js              ETH transfer page
   Storage.js                  file hash registration page
-  fileUtils.js                file size formatting used by Storage.js (tested in fileUtils.test.js)
+  fileUtils.js                file size formatting and SHA-256 hashing for Storage.js (tested in fileUtils.test.js)
   storage.sol                 FileStorage contract (used by Storage.js and the script)
   transaction.sol             EtherTransfer contract (not used by the app)
   App.css, index.css          styles
@@ -73,7 +73,7 @@ backend for storage/
 
 ## Limitations and next steps
 
-- The browser hashes with keccak-256 and the script with SHA-256, so a hash recorded by one client cannot be checked by the other.
+- Records that the browser stored before it switched to SHA-256 hold a `0x`-prefixed keccak-256 hash, so they do not match a SHA-256 check.
 - The login is a client-side check against hard-coded credentials, and the other routes open directly without it.
 - The script needs its key and file paths edited in the source; reading them from environment variables or arguments would be safer.
 - Create React App is deprecated. The app still builds with react-scripts 5.0.1 on Node 22, but Vite would be the maintained choice for a rewrite.

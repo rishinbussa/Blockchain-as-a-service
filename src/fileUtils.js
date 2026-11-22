@@ -14,3 +14,14 @@ export function formatFileSize(bytes) {
   }
   return `${(size / (1024 * 1024)).toFixed(1)} MB`;
 }
+
+// Hashes file bytes with SHA-256 through the browser's Web Crypto API and
+// returns lowercase hex without a 0x prefix. That is the same string
+// Python's hashlib.sha256(data).hexdigest() gives, so the browser and the
+// storage script record the same hash for the same file.
+export async function sha256Hex(data) {
+  const digest = await window.crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(digest))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}

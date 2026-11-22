@@ -1,4 +1,5 @@
-import { formatFileSize } from './fileUtils';
+import { webcrypto } from 'crypto';
+import { formatFileSize, sha256Hex } from './fileUtils';
 
 test('shows sizes under 1 KB in bytes', () => {
   expect(formatFileSize(0)).toBe('0 bytes');
@@ -18,4 +19,14 @@ test('shows larger sizes in MB', () => {
 
 test('accepts the BigInt values web3 returns for uint256 fields', () => {
   expect(formatFileSize(BigInt(2048))).toBe('2.0 KB');
+});
+
+test('hashes bytes with SHA-256 as lowercase hex, like Python hexdigest()', async () => {
+  // Jest's browser environment has no Web Crypto, so use the one Node.js has.
+  Object.defineProperty(window, 'crypto', { value: webcrypto });
+  const bytes = new Uint8Array([97, 98, 99]); // "abc"
+  // hashlib.sha256(b"abc").hexdigest() in Python returns the same string.
+  expect(await sha256Hex(bytes)).toBe(
+    'ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad'
+  );
 });

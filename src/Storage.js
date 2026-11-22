@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Web3 from "web3";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { formatFileSize } from './fileUtils';
+import { formatFileSize, sha256Hex } from './fileUtils';
 
 const FileUpload = () => {
   const [file, setFile] = useState(null);
@@ -178,8 +178,7 @@ const FileUpload = () => {
     fileReader.readAsArrayBuffer(file);
     fileReader.onloadend = async () => {
       const fileData = fileReader.result;
-      const uint8Array = new Uint8Array(fileData); 
-      const fileHash = web3.utils.sha3(uint8Array); 
+      const fileHash = await sha256Hex(fileData);
       const fileSize = file.size;
       const fileName = file.name;
 
