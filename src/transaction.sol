@@ -2,10 +2,22 @@
 pragma solidity ^0.8.0;
 
 contract EtherTransfer {
+    // The account that deployed the contract. Only it can withdraw.
+    address public owner;
+
     event TransferSuccessful(address indexed from, address indexed to, uint256 amount);
 
     
     event TransferFailed(address indexed from, address indexed to, uint256 amount);
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only the owner can call this function.");
+        _;
+    }
 
     
     function sendEther(address payable recipient) external payable {
@@ -26,7 +38,7 @@ contract EtherTransfer {
     receive() external payable {}
 
     
-    function withdraw() external {
+    function withdraw() external onlyOwner {
         payable(msg.sender).transfer(address(this).balance);
     }
 }

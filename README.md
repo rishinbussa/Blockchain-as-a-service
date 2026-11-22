@@ -16,7 +16,7 @@ A React single-page app with two MetaMask-based tools: a **Transactions** page t
 **Contracts.**
 
 - `src/storage.sol` (`FileStorage`): `uploadFile` increments `fileCount`, stores `{name, hash, size, uploader: msg.sender}` under the new count (so IDs start at 1) and emits `FileUploaded`. `getFile(id)` and the public `files(id)` getter return a record.
-- `src/transaction.sol` (`EtherTransfer`): `sendEther(recipient)` forwards `msg.value` with a low-level call and emits `TransferSuccessful`, or reverts if the call fails. `receive()` accepts ETH and `withdraw()` sends the contract's whole balance to the caller. No code in this repository calls this contract; the Transactions page sends ETH directly from the wallet.
+- `src/transaction.sol` (`EtherTransfer`): `sendEther(recipient)` forwards `msg.value` with a low-level call and emits `TransferSuccessful`, or reverts if the call fails. `receive()` accepts ETH. The constructor stores the deployer as `owner`, and `withdraw()` is guarded by an `onlyOwner` modifier, so only the owner can take out the contract's balance; any other caller gets a revert. No code in this repository calls this contract; the Transactions page sends ETH directly from the wallet.
 
 **Python script (`backend for storage/1.py`).** A standalone script, not a server; the React app does not call it. It connects to Sepolia through the RPC URL in `blockchain_url`, computes the SHA-256 of a local file, then builds and signs an `uploadFile` transaction with a local private key (gas 2,000,000, gas price 20 gwei). It waits for the receipt, prints the metadata of file ID 1 and checks a local file against an expected SHA-256 hash.
 
@@ -76,6 +76,5 @@ backend for storage/
 - The Storage page formats the file size with `fromWei(size, 'ether')` and labels it ETH, although the value is a byte count.
 - The browser hashes with keccak-256 and the script with SHA-256, so a hash recorded by one client cannot be checked by the other.
 - The login is a client-side check against hard-coded credentials, and the other routes open directly without it.
-- `EtherTransfer.withdraw()` has no access control, so any address can withdraw the contract's balance.
 - The script needs its key and file paths edited in the source; reading them from environment variables or arguments would be safer.
 - Committing a `package.json` and moving the contracts from `src/` to a `contracts/` folder would make the repository run without the scaffold step.
