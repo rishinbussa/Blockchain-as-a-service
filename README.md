@@ -11,7 +11,7 @@ A React single-page app with two MetaMask-based tools: a **Transactions** page t
 | `/` | `Login.js` | Client-side form that accepts the hard-coded pair `admin` / `password` and navigates to `/home`. |
 | `/home` | `Home.js` | Links to the two tools. |
 | `/transaction` | `Transaction.js` | Uses web3.js with `window.ethereum` to request accounts, then calls `web3.eth.sendTransaction` with the amount converted by `toWei(amount, 'ether')`. Progress comes from the `transactionHash`, `receipt` and `error` events and is shown as text and react-toastify toasts. The history list lives in component state only. |
-| `/storage` | `Storage.js` | Reads the selected file with `FileReader`, hashes the bytes with `web3.utils.sha3` (keccak-256) and calls `uploadFile(name, hash, size)` on `FileStorage` from the connected account with a 2,000,000 gas limit. On load and after each upload it reads `fileCount()` and `files(i)` and lists up to three entries. |
+| `/storage` | `Storage.js` | Reads the selected file with `FileReader`, hashes the bytes with `web3.utils.sha3` (keccak-256) and calls `uploadFile(name, hash, size)` on `FileStorage` from the connected account with a 2,000,000 gas limit. On load and after each upload it reads `fileCount()`, then `files(i)` for IDs 1 to `fileCount` (the IDs the contract uses), and lists the three newest entries. |
 
 **Contracts.**
 
@@ -72,7 +72,6 @@ backend for storage/
 
 ## Limitations and next steps
 
-- `Storage.js` reads IDs 0 to `fileCount - 1`, but the contract stores files at 1 to `fileCount`, so the list shows an empty record and leaves out the newest file.
 - The Storage page formats the file size with `fromWei(size, 'ether')` and labels it ETH, although the value is a byte count.
 - The browser hashes with keccak-256 and the script with SHA-256, so a hash recorded by one client cannot be checked by the other.
 - The login is a client-side check against hard-coded credentials, and the other routes open directly without it.

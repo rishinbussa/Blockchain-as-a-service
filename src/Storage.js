@@ -128,9 +128,10 @@ const FileUpload = () => {
   
   const fetchUploadedFiles = async () => {
     try {
-      const fileCount = await contract.methods.fileCount().call();
+      const fileCount = Number(await contract.methods.fileCount().call());
       const files = [];
-      for (let i = 0; i < fileCount; i++) {
+      // FileStorage stores files under IDs 1 to fileCount; ID 0 is never used.
+      for (let i = 1; i <= fileCount; i++) {
         const file = await contract.methods.files(i).call();
         files.push(file);
       }
