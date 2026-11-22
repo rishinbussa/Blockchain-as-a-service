@@ -11,7 +11,7 @@ A React single-page app with two MetaMask-based tools: a **Transactions** page t
 | `/` | `Login.js` | Client-side form that accepts the hard-coded pair `admin` / `password` and navigates to `/home`. |
 | `/home` | `Home.js` | Links to the two tools. |
 | `/transaction` | `Transaction.js` | Uses web3.js with `window.ethereum` to request accounts, then calls `web3.eth.sendTransaction` with the amount converted by `toWei(amount, 'ether')`. Progress comes from the `transactionHash`, `receipt` and `error` events and is shown as text and react-toastify toasts. The history list lives in component state only. |
-| `/storage` | `Storage.js` | Reads the selected file with `FileReader`, hashes the bytes with `web3.utils.sha3` (keccak-256) and calls `uploadFile(name, hash, size)` on `FileStorage` from the connected account with a 2,000,000 gas limit. On load and after each upload it reads `fileCount()`, then `files(i)` for IDs 1 to `fileCount` (the IDs the contract uses), and lists the three newest entries. |
+| `/storage` | `Storage.js` | Reads the selected file with `FileReader`, hashes the bytes with `web3.utils.sha3` (keccak-256) and calls `uploadFile(name, hash, size)` on `FileStorage` from the connected account with a 2,000,000 gas limit. On load and after each upload it reads `fileCount()`, then `files(i)` for IDs 1 to `fileCount` (the IDs the contract uses), and lists the three newest entries, with sizes shown in bytes, KB or MB by `formatFileSize` in `src/fileUtils.js`. |
 
 **Contracts.**
 
@@ -35,7 +35,7 @@ npm start
 
 The app opens at http://localhost:3000. Sign in with `admin` / `password` and switch MetaMask to Sepolia. To use your own contract, deploy `src/storage.sol` from [Remix](https://remix.ethereum.org) with **Injected Provider - MetaMask** and replace `contractAddress` in `src/Storage.js`.
 
-`npm run build` writes a production build to `build/`. Dependency versions are pinned in `package.json` and `package-lock.json`.
+`npm run build` writes a production build to `build/`, and `npm test` runs the Jest unit tests in `src/`. Dependency versions are pinned in `package.json` and `package-lock.json`.
 
 **Python script.** From the repository root:
 
@@ -62,6 +62,7 @@ src/
   Login.js, Home.js           login form and navigation page
   Transaction.js              ETH transfer page
   Storage.js                  file hash registration page
+  fileUtils.js                file size formatting used by Storage.js (tested in fileUtils.test.js)
   storage.sol                 FileStorage contract (used by Storage.js and the script)
   transaction.sol             EtherTransfer contract (not used by the app)
   App.css, index.css          styles
@@ -72,7 +73,6 @@ backend for storage/
 
 ## Limitations and next steps
 
-- The Storage page formats the file size with `fromWei(size, 'ether')` and labels it ETH, although the value is a byte count.
 - The browser hashes with keccak-256 and the script with SHA-256, so a hash recorded by one client cannot be checked by the other.
 - The login is a client-side check against hard-coded credentials, and the other routes open directly without it.
 - The script needs its key and file paths edited in the source; reading them from environment variables or arguments would be safer.

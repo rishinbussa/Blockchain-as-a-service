@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Web3 from "web3";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { formatFileSize } from './fileUtils';
 
 const FileUpload = () => {
   const [file, setFile] = useState(null);
@@ -256,7 +257,7 @@ const FileUpload = () => {
                 <li key={index} style={{ color: 'black' }}> 
                   <p><strong>File Name:</strong> {file.name}</p>
                   <p><strong>File Hash:</strong> {file.hash}</p>
-                  <p><strong>Size:</strong> {web3.utils.fromWei(file.size, 'ether')} ETH</p>
+                  <p><strong>Size:</strong> {formatFileSize(file.size)}</p>
                   <p><strong>Uploader:</strong> {file.uploader}</p>
                 </li>
               ))
