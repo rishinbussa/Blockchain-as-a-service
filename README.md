@@ -22,23 +22,20 @@ A React single-page app with two MetaMask-based tools: a **Transactions** page t
 
 ## Tech stack
 
-React with React Router and web3.js (Create React App layout), react-toastify, MetaMask, Solidity 0.8, Python 3 with web3.py 7, Ethereum Sepolia.
+React 18 with React Router 6 and web3.js 4, built with Create React App (react-scripts 5.0.1), react-toastify, MetaMask, Solidity 0.8, Python 3 with web3.py 7, Ethereum Sepolia.
 
 ## Run it locally
 
-**Front end.** The repository holds the `src/` folder of a Create React App project but not its `package.json` or `public/index.html`, so the app needs a small scaffold first. Run these from the folder that contains your clone:
+**Front end.** You need Node.js 22 and MetaMask. From the repository root:
 
 ```bash
-mkdir baas-app && cd baas-app
-cp -r ../Blockchain-as-a-service/src ./src
-mkdir public
-echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>Blockchain App</title></head><body><div id="root"></div></body></html>' > public/index.html
-npm init -y
-npm install react@18 react-dom@18 react-scripts@5.0.1 react-router-dom@6 web3@4 react-toastify@10 web-vitals@2
-npx react-scripts start
+npm install
+npm start
 ```
 
-react-scripts asks once whether to add default browser targets to `package.json`; answer yes. The app opens at http://localhost:3000. Sign in with `admin` / `password` and switch MetaMask to Sepolia. To use your own contract, deploy `src/storage.sol` from [Remix](https://remix.ethereum.org) with **Injected Provider - MetaMask** and replace `contractAddress` in `src/Storage.js`.
+The app opens at http://localhost:3000. Sign in with `admin` / `password` and switch MetaMask to Sepolia. To use your own contract, deploy `src/storage.sol` from [Remix](https://remix.ethereum.org) with **Injected Provider - MetaMask** and replace `contractAddress` in `src/Storage.js`.
+
+`npm run build` writes a production build to `build/`. Dependency versions are pinned in `package.json` and `package-lock.json`.
 
 **Python script.** From the repository root:
 
@@ -57,6 +54,9 @@ python3 "backend for storage/1.py"
 ## Project structure
 
 ```
+package.json, package-lock.json   dependencies and npm scripts
+public/
+  index.html                  HTML page the React app mounts into
 src/
   index.js, App.js            entry point and routes
   Login.js, Home.js           login form and navigation page
@@ -77,4 +77,4 @@ backend for storage/
 - The browser hashes with keccak-256 and the script with SHA-256, so a hash recorded by one client cannot be checked by the other.
 - The login is a client-side check against hard-coded credentials, and the other routes open directly without it.
 - The script needs its key and file paths edited in the source; reading them from environment variables or arguments would be safer.
-- Committing a `package.json` and moving the contracts from `src/` to a `contracts/` folder would make the repository run without the scaffold step.
+- Create React App is deprecated. The app still builds with react-scripts 5.0.1 on Node 22, but Vite would be the maintained choice for a rewrite.
