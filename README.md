@@ -1,6 +1,6 @@
 # Ethereum Transfer and File Registry dApp
 
-A React single-page app with two MetaMask-based tools: a **Transactions** page that sends ETH from the connected account to any address, and a **Storage** page that records a file's name, SHA-256 hash and size on chain through a `FileStorage` contract. The browser only hashes the file; its contents are not uploaded anywhere. A separate Python script registers files in the same contract from the command line with web3.py. Both clients store the hash in the same format (lowercase hex SHA-256 without `0x`), so a file registered by one can be checked by the other. Both talk to the same `FileStorage` contract on Sepolia: the page has its address in `src/Storage.js`, and the script takes the address and an RPC URL as command-line arguments.
+A React single-page app with two MetaMask-based tools: a **Transactions** page that sends ETH from the connected account to any address, and a **Storage** page that records a file's name, SHA-256 hash and size on chain through a `FileStorage` contract. The browser only hashes the file; its contents are not uploaded anywhere. A separate Python script registers files in the same contract from the command line with web3.py. Both clients store the hash in the same format (lowercase hex SHA-256 without `0x`), so a file registered by one can be checked by the other. The page has the contract address in `src/Storage.js`; the script takes the address and a Sepolia RPC URL as command-line arguments.
 
 ## How it works
 
@@ -97,6 +97,9 @@ scripts/
 
 ## Limitations and next steps
 
+- Neither page checks which network MetaMask is on. The Transactions page sends ETH on whatever network is selected, and on a network other than Sepolia the Storage page cannot reach the contract at its hard-coded address.
+- The Storage page reads every record, one call per file, to show the newest three. Reading only the last three IDs would keep it fast as the list grows.
 - Records that the browser stored before it switched to SHA-256 hold a `0x`-prefixed keccak-256 hash, so they do not match a SHA-256 check.
 - There is no real authentication. The login screen is a labelled demo that checks hard-coded credentials in the browser, and the other routes open without it. Protecting the pages would need a server, or a wallet signature checked by one.
+- Contracts are deployed by hand from Remix; there is no deployment script, and the app does not use `EtherTransfer`.
 - Create React App is deprecated. The app still builds with react-scripts 5.0.1 on Node 22, but Vite would be the maintained choice for a rewrite.
